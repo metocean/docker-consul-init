@@ -4,7 +4,7 @@ A INIT / PID 1 program that starts your app and a consul agent written in C.
 - [docker-consul-init](#docker-consul-init)
   * [usage](#usage)
   * [on docker stop / SIGTERM:](#on-docker-stop)
-  * [on docker kill -s SIGNAL:](#on-docker-kill--s-signal-)
+  * [on docker kill -s SIGNAL:](#on-docker-kill-signal)
   * [docker signals](#docker-signals)
   * [nginx example](#nginx-example)
   * [make](#make)
@@ -32,7 +32,7 @@ on docker stop / SIGTERM consul-init will:
 1. stop the consul agent greacefully allowing it to redregister itself.
 2. send a SIGTERM to the program, or if the user has mapped TERM to another signal it will send the mapped [to-signal].
 
-## on docker kill -s SIGNAL:
+## on docker kill SIGNAL:
 on docker kill -s SIGNAL consul-init will send the SIGNAL to the program, or if the user has mapped SIGNAL to another signal it will send the mapped [to-signal].
 
 ## docker signals
