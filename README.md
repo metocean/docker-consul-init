@@ -42,7 +42,7 @@ cd consul-init
 make
 ```
 
-## Dockerfile build example:
+## Dockerfile example:
 ```
 # install consul agent
 ENV CONSUL_VERSION=0.7.5
@@ -64,4 +64,3 @@ RUN cd /tmp/consul-init &&\
 
 ENTRYPOINT ["consul-init", "--program", "gunicorn", "mywebapp", "--bind", "0.0.0.0:80"]
 ```
-
