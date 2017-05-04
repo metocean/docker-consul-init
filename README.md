@@ -7,7 +7,7 @@ A INIT / PID 1 program that starts your app and a consul agent written in C.
   * [on docker kill -s SIGNAL:](#on-docker-kill-signal)
   * [docker signals](#docker-signals)
   * [nginx example](#nginx-example)
-  * [make](#make)
+  * [c make](#c-make)
   * [Dockerfile example:](#dockerfile-example-)
 
 ## usage
@@ -45,10 +45,11 @@ on docker kill -s SIGNAL consul-init will send the SIGNAL to the program, or if 
 ```
 ```--map``` maps the terminate signal to quit, which means nginx will gracefully shut down.
 
-## make
+## c make
 ```
 cd consul-init
 make
+make clean
 ```
 
 ## Dockerfile example:
