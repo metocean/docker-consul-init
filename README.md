@@ -9,6 +9,17 @@ make
 
 ## Dockerfile build example:
 ```
+# install consul agent
+ENV CONSUL_VERSION=0.7.5
+RUN cd /tmp &&\
+    curl -o consul.zip -L https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip &&\
+    unzip consul.zip &&\
+    chmod +x consul &&\
+    mv consul /usr/bin &&\
+    mkdir /consul &&\
+    rm -rf /tmp/*
+
+# install consul-init
 ADD ./consul-init /tmp/consul-init
 RUN cd /tmp/consul-init &&\
     make &&\
