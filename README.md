@@ -7,7 +7,7 @@ cd consul-init
 make
 cp consul-init /bin/consul-init
 ```
-  
+
 ## Dockerfile entry point
 ```
 ENTRYPOINT ["/bin/consul-init", "--program", "/myapp", "--my-app-arggs"]
@@ -15,9 +15,19 @@ ENTRYPOINT ["/bin/consul-init", "--program", "/myapp", "--my-app-arggs"]
 
 ## usage
 ```
-usage: consul-init --map [from-signal] [to-signal] --program [program-path] [program args ..]
---map [from-signal] [to-signal]: this re-maps a signal received by consul-init app to the program
+usage:
+
+consul-init --map [from-signal] [to-signal] --program [program-path] [program args ..]
+
+--map [from-signal] [to-signal]: this re-maps a signal received by consul-init app to the program, you can have more than one mapping
 --program [norm program args]: this is the program + it args to be run in the docker
+--no-consul: do not use the consul agent
+
+consul agent is started with:
+
+/usr/bin/consul agent -config-dir /etc/consul -data-dir /var/lib/consul/data
+
+Note these consul directories must exist.
 ```
 
 ## docker signals
