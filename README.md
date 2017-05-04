@@ -3,7 +3,7 @@ A INIT / PID 1 program that starts your app and a consul agent written in C.
 
 - [docker-consul-init](#docker-consul-init)
   * [usage](#usage)
-  * [nginx example](#nginx-example)
+  * [example](#example)
   * [on docker stop / SIGTERM:](#on-docker-stop)
   * [on docker kill -s SIGNAL:](#on-docker-kill-signal)
   * [docker signals](#docker-signals)
@@ -27,9 +27,10 @@ consul agent is started with:
 Note these consul directories must exist or the consul agent will not start.
 ```
 
-## nginx example
+## example
+this will start nginx and the consul agent. When ```docker stop``` nginx will gractefully shutdown and consul will deregister the service.
 ```
-/bin/consul-init --map TERM OUIT --program /bin/nginx -g daemon off;
+/bin/consul-init --map TERM QUIT --program /bin/nginx -g daemon off;
 ```
 ```--map``` maps the terminate signal to quit, which means nginx will gracefully shut down.
 
