@@ -35,7 +35,7 @@ this will start nginx and the consul agent. When ```docker stop``` is used nginx
 ```--map``` maps the terminate signal to quit allowing nginx to gracefully shut down.
 
 ## on docker stop
-on docker stop / SIGTERM consul-init will:
+on docker stop / SIGTERM or on SIGINT consul-init will:
 1. stop the consul agent greacefully allowing it to redregister itself.
 2. send a SIGTERM to the program, or if the user has mapped TERM to another signal it will send the mapped [to-signal].
 
