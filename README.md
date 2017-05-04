@@ -3,10 +3,10 @@ A INIT / PID 1 program that starts your app and a consul agent written in C.
 
 - [docker-consul-init](#docker-consul-init)
   * [usage](#usage)
+  * [nginx example](#nginx-example)
   * [on docker stop / SIGTERM:](#on-docker-stop)
   * [on docker kill -s SIGNAL:](#on-docker-kill-signal)
   * [docker signals](#docker-signals)
-  * [nginx example](#nginx-example)
   * [c make](#c-make)
   * [Dockerfile example:](#dockerfile-example-)
 
@@ -27,6 +27,12 @@ consul agent is started with:
 Note these consul directories must exist or the consul agent will not start.
 ```
 
+## nginx example
+```
+/bin/consul-init --map TERM OUIT --program /bin/nginx -g daemon off;
+```
+```--map``` maps the terminate signal to quit, which means nginx will gracefully shut down.
+
 ## on docker stop:
 on docker stop / SIGTERM consul-init will:
 1. stop the consul agent greacefully allowing it to redregister itself.
@@ -38,12 +44,6 @@ on docker kill -s SIGNAL consul-init will send the SIGNAL to the program, or if 
 ## docker signals
 * docker stop: The main process inside the container will receive SIGTERM, and after a grace period (default 10 seconds), SIGKILL.
 * docker kill -s SIGNAL: will send a singal to the process in the container.
-
-## nginx example
-```
-/bin/consul-init --map TERM OUIT --program /bin/nginx -g daemon off;
-```
-```--map``` maps the terminate signal to quit, which means nginx will gracefully shut down.
 
 ## c make
 ```
