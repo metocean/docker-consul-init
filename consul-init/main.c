@@ -122,7 +122,7 @@ void check_for_consul_dirs(const char *consul_data_dir, const char *consul_confi
             else
                 PRINT("WARN: %s access error, consul agent will not be started", consul_data_dir);
         }
-        else if (0 != access(consul_data_dir, F_OK)) {
+        else if (0 != access(consul_config_dir, F_OK)) {
             _args.no_consul = true;
             if (ENOENT == errno)
                 PRINT("WARN: %s does not exists, consul agent will not be started", consul_config_dir);
