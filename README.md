@@ -1,6 +1,15 @@
 # docker-consul-init
 A INIT / PID 1 program that starts your app and a consul agent written in C.
 
+- [docker-consul-init](#docker-consul-init)
+  * [usage](#usage)
+  * [on docker stop / SIGTERM:](#on-docker-stop---sigterm-)
+  * [on docker kill -s SIGNAL:](#on-docker-kill--s-signal-)
+  * [docker signals](#docker-signals)
+  * [nginx example](#nginx-example)
+  * [make](#make)
+  * [Dockerfile example:](#dockerfile-example-)
+
 ## usage
 ```
 usage:
