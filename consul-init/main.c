@@ -116,20 +116,20 @@ void check_for_consul_dirs(const char *consul_data_dir, const char *consul_confi
         if (0 != access(consul_data_dir, F_OK)) {
             _args.no_consul = true;
             if (ENOENT == errno)
-                PRINT("WARN: %s does not exists, consul agent will not be started", consul_data_dir);
+                PRINT("WARN: %s does not exists, consul agent will not be started\n", consul_data_dir);
             else if (ENOTDIR == errno)
-                PRINT("WARN: %s is not a directory, consul agent will not be started", consul_data_dir);
+                PRINT("WARN: %s is not a directory, consul agent will not be started\n", consul_data_dir);
             else
-                PRINT("WARN: %s access error, consul agent will not be started", consul_data_dir);
+                PRINT("WARN: %s access error, consul agent will not be started\n", consul_data_dir);
         }
         else if (0 != access(consul_config_dir, F_OK)) {
             _args.no_consul = true;
             if (ENOENT == errno)
-                PRINT("WARN: %s does not exists, consul agent will not be started", consul_config_dir);
+                PRINT("WARN: %s does not exists, consul agent will not be started\n", consul_config_dir);
             else if (ENOTDIR == errno)
-                PRINT("WARN: %s is not a directory, consul agent will not be started", consul_config_dir);
+                PRINT("WARN: %s is not a directory, consul agent will not be started\n", consul_config_dir);
             else
-                PRINT("WARN: %s access error, consul agent will not be started", consul_config_dir);
+                PRINT("WARN: %s access error, consul agent will not be started\n", consul_config_dir);
         }
     }
 }
