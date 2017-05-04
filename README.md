@@ -43,8 +43,8 @@ on docker stop / SIGTERM consul-init will:
 on docker kill -s SIGNAL consul-init will send the SIGNAL to the program, or if the user has mapped SIGNAL to another signal it will send the mapped [to-signal].
 
 ## docker signals
-* docker stop: The main process inside the container will receive SIGTERM, and after a grace period (default 10 seconds), SIGKILL.
-* docker kill -s SIGNAL: will send a singal to the process in the container.
+* ```docker stop```: The main process inside the container will receive SIGTERM, and after a grace period (default 10 seconds), SIGKILL.
+* ```docker kill -s SIGNAL```: will send a singal to the process in the container.
 
 ## c make
 ```
