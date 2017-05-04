@@ -1,4 +1,4 @@
-#include <sys/signal.h>
+#include <signal.h>
 #include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
@@ -29,41 +29,106 @@ static bool str_starts_with(const char *str, const char *prefix)
 
 static void signal_names_init() {
     memset(&_signals, 0, sizeof(_signals));
-    add_signal(SIGHUP, "HUP", "Hangup (POSIX)");
+
+    // sigals use by consul-init so required.
     add_signal(SIGINT, "INT", "Interrupt (ANSI)");
-    add_signal(SIGQUIT, "QUIT", "Quit (POSIX)");
-    add_signal(SIGILL, "ILL", "Illegal instruction (ANSI).");
-    add_signal(SIGILL, "TRAP", "Trace trap (POSIX).");
-    add_signal(SIGABRT, "ABRT", "Abort (ANSI).");
-    add_signal(SIGIOT, "IOT", "IOT (4.2 BSD).");
-    add_signal(SIGBUS, "BUS", "BUS error (4.2 BSD).");
-    add_signal(SIGFPE, "FPE", "Floating-point exception (ANSI).");
-    add_signal(SIGKILL, "KILL", "Kill, unblockable (POSIX).");
-    add_signal(SIGUSR1, "USR1", "User-defined signal 1 (POSIX).");
-    add_signal(SIGSEGV, "SEGV", "Segmentation violation (ANSI).");
-    add_signal(SIGUSR2, "USR2", "User-defined signal 2 (POSIX).");
-    add_signal(SIGPIPE, "PIPE", "Broken pipe (POSIX).");
-    add_signal(SIGALRM, "ALRM", "Alarm clock (POSIX).");
     add_signal(SIGTERM, "TERM", "Termination (ANSI).");
-    add_signal(SIGSTKFLT, "STKFLT", "Stack fault.");
-    add_signal(SIGCLD, "CLD", "Child status has changed (System V).");
     add_signal(SIGCHLD, "CHLD", "Child status has changed (POSIX).");
-    add_signal(SIGCONT, "CONT", "Continue (POSIX).");
-    add_signal(SIGSTOP, "STOP", "Stop, unblockable (POSIX).");
-    add_signal(SIGTSTP, "STP", "Keyboard stop (POSIX).");
-    add_signal(SIGTTIN, "TTIN", "Background read from tty (POSIX).");
-    add_signal(SIGTTOU, "TTOU", "Background write to tty (POSIX).");
-    add_signal(SIGURG, "URG", "Urgent condition on socket (4.2 BSD).");
-    add_signal(SIGXCPU, "XCPU", "CPU limit exceeded (4.2 BSD).");
-    add_signal(SIGXFSZ, "XFSZ", "File size limit exceeded (4.2 BSD).");
-    add_signal(SIGVTALRM, "VTALRM", "Virtual alarm clock (4.2 BSD).");
-    add_signal(SIGPROF, "PROF", "Profiling alarm clock (4.2 BSD).");
-    add_signal(SIGWINCH, "WINCH", " Window size change (4.3 BSD, Sun).");
-    add_signal(SIGPOLL, "POLL", "Pollable event occurred (System V).");
-    add_signal(SIGIO, "IO", "I/O now possible (4.2 BSD).");
-    add_signal(SIGPWR, "PWR", "Power failure restart (System V).");
-    add_signal(SIGSYS, "SYS", "Bad system call.");
     add_signal(SIGUNUSED, "UNUSED", "");
+
+    #ifdef SIGHUP
+        add_signal(SIGHUP, "HUP", "Quit (POSIX)");
+    #endif
+    #ifdef SIGQUIT
+        add_signal(SIGQUIT, "QUIT", "Quit (POSIX)");
+    #endif
+    #ifdef SIGILL
+        add_signal(SIGILL, "ILL", "Illegal instruction (ANSI).");
+    #endif
+    #ifdef SIGTRAP
+        add_signal(SIGTRAP, "TRAP", "Trace trap (POSIX).");
+    #endif
+    #ifdef SIGABRT
+        add_signal(SIGABRT, "ABRT", "Abort (ANSI).");
+    #endif
+    #ifdef SIGIOT
+        add_signal(SIGIOT, "IOT", "IOT (4.2 BSD).");
+    #endif
+    #ifdef SIGBUS
+        add_signal(SIGBUS, "BUS", "BUS error (4.2 BSD).");
+    #endif
+    #ifdef SIGFPE
+        add_signal(SIGFPE, "FPE", "Floating-point exception (ANSI).");
+    #endif
+    #ifdef SIGKILL
+        add_signal(SIGKILL, "KILL", "Kill, unblockable (POSIX).");
+    #endif
+    #ifdef SIGUSR1
+        add_signal(SIGUSR1, "USR1", "User-defined signal 1 (POSIX).");
+    #endif
+    #ifdef SIGSEGV
+        add_signal(SIGSEGV, "SEGV", "Segmentation violation (ANSI).");
+    #endif
+    #ifdef SIGUSR2
+        add_signal(SIGUSR2, "USR2", "User-defined signal 2 (POSIX).");
+    #endif
+    #ifdef SIGPIPE
+        add_signal(SIGPIPE, "PIPE", "Broken pipe (POSIX).");
+    #endif
+    #ifdef SIGALRM
+        add_signal(SIGALRM, "ALRM", "Alarm clock (POSIX).");
+    #endif
+    #ifdef SIGSTKFLT
+        add_signal(SIGSTKFLT, "STKFLT", "Stack fault.");
+    #endif
+    #ifdef SIGCLD
+        add_signal(SIGCLD, "CLD", "Same as SIGCHLD (System V).");
+    #endif
+    #ifdef SIGCONT
+        add_signal(SIGCONT, "CONT", "Continue (POSIX).");
+    #endif
+    #ifdef SIGSTOP
+        add_signal(SIGSTOP, "STOP", "Stop, unblockable (POSIX).");
+    #endif
+    #ifdef SIGTSTP
+        add_signal(SIGTSTP, "STP", "Keyboard stop (POSIX).");
+    #endif
+    #ifdef SIGTTIN
+        add_signal(SIGTTIN, "TTIN", "Background read from tty (POSIX).");
+    #endif
+    #ifdef SIGTTOU
+        add_signal(SIGTTOU, "TTOU", "Background write to tty (POSIX).");
+    #endif
+    #ifdef SIGURG
+        add_signal(SIGURG, "URG", "Urgent condition on socket (4.2 BSD).");
+    #endif
+    #ifdef SIGXCPU
+        add_signal(SIGXCPU, "XCPU", "CPU limit exceeded (4.2 BSD).");
+    #endif
+    #ifdef SIGXFSZ
+        add_signal(SIGXFSZ, "XFSZ", "File size limit exceeded (4.2 BSD).");
+    #endif
+    #ifdef SIGVTALRM
+        add_signal(SIGVTALRM, "VTALRM", "Virtual alarm clock (4.2 BSD).");
+    #endif
+    #ifdef SIGPROF
+        add_signal(SIGPROF, "PROF", "Profiling alarm clock (4.2 BSD).");
+    #endif
+    #ifdef SIGWINCH
+        add_signal(SIGWINCH, "WINCH", " Window size change (4.3 BSD, Sun).");
+    #endif
+    #ifdef SIGPOLL
+        add_signal(SIGPOLL, "POLL", "Pollable event occurred (System V).");
+    #endif
+    #ifdef SIGIO
+        add_signal(SIGIO, "IO", "I/O now possible (4.2 BSD).");
+    #endif
+    #ifdef SIGPWR
+        add_signal(SIGPWR, "PWR", "Power failure restart (System V).");
+    #endif
+    #ifdef SIGSYS
+        add_signal(SIGSYS, "SYS", "Bad system call.");
+    #endif
 }
 
 int signal_name_to_num(const char* name) {

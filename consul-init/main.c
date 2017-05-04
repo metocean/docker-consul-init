@@ -111,6 +111,29 @@ void parse_args(int argc, char** argv) {
     }
 }
 
+void check_for_consul_dirs(const char *consul_data_dir, const char *consul_config_dir) {
+    if (_args.no_consul == false) {
+        if (0 != access(consul_data_dir, F_OK)) {
+            _args.no_consul = true;
+            if (ENOENT == errno)
+                PRINT("WARN: %s does not exists, consul agent will not be started", consul_data_dir);
+            else if (ENOTDIR == errno)
+                PRINT("WARN: %s is not a directory, consul agent will not be started", consul_data_dir);
+            else
+                PRINT("WARN: %s access error, consul agent will not be started", consul_data_dir);
+        }
+        else if (0 != access(consul_data_dir, F_OK)) {
+            _args.no_consul = true;
+            if (ENOENT == errno)
+                PRINT("WARN: %s does not exists, consul agent will not be started", consul_config_dir);
+            else if (ENOTDIR == errno)
+                PRINT("WARN: %s is not a directory, consul agent will not be started", consul_config_dir);
+            else
+                PRINT("WARN: %s access error, consul agent will not be started", consul_config_dir);
+        }
+    }
+}
+
 pid_t spawn_process(const char *file,
                     char *const argv[],
                     const sigset_t *all_signals) {
@@ -139,15 +162,18 @@ pid_t spawn_process(const char *file,
     return child_pid;
 }
 
-
 int main(int argc, char** argv) {
 
+    char* consul_data_dir = "/var/lib/consul/data";
+    char* consul_config_dir = "/etc/consul";
     char* consul_cmd[] = {"/usr/bin/consul",
-                          "agent", "-config-dir", "/etc/consul",
-                          "-data-dir", "/var/lib/consul/data",
+                          "agent",
+                          "-config-dir", consul_config_dir,
+                          "-data-dir", consul_data_dir,
                           NULL};
 
     parse_args(argc, argv);
+    check_for_consul_dirs(consul_data_dir, consul_config_dir);
 
     pid_t program_pid = -1;
     pid_t program_exit_status = 0;
