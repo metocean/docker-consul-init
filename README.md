@@ -28,11 +28,11 @@ Note these consul directories must exist or the consul agent will not start.
 ```
 
 ## example
-this will start nginx and the consul agent. When ```docker stop``` nginx will gractefully shutdown and consul will deregister the service.
+this will start nginx and the consul agent. When ```docker stop``` is used nginx will gractefully shutdown and consul will deregister the service.
 ```
 /bin/consul-init --map TERM QUIT --program /bin/nginx -g daemon off;
 ```
-```--map``` maps the terminate signal to quit, which means nginx will gracefully shut down.
+```--map``` maps the terminate signal to quit allowing nginx to gracefully shut down.
 
 ## on docker stop:
 on docker stop / SIGTERM consul-init will:
