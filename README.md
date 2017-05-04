@@ -5,7 +5,18 @@ A INIT / PID 1 program that starts your app and a consul agent written in C.
 ```
 cd consul-init
 make
-cp consul-init /bin/consul-init
+```
+
+## Dockerfile build example:
+```
+ADD ./consul-init /tmp/consul-init
+RUN cd /tmp/consul-init &&\
+    make &&\
+    cp consul-init /bin/ &&\
+    mkdir -p /var/lib/consul/data &&\
+    rm -rf /tmp/consul-init
+
+ENTRYPOINT ["consul-init", "--program", "gunicorn", "mywebapp", "--bind", "0.0.0.0:80"]
 ```
 
 ## Dockerfile entry point
