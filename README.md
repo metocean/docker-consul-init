@@ -38,7 +38,7 @@ consul agent is started with:
 
 /usr/bin/consul agent -config-dir /etc/consul -data-dir /var/lib/consul/data
 
-Note these consul directories must exist.
+Note these consul directories must exist or the consul agent will not start.
 ```
 
 ## docker signals

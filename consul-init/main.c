@@ -27,7 +27,7 @@ example: /bin/consul-init --map TERM OUIT --program /bin/nginx -g daemon off;\n 
 consul agent is started with:\n\n \
 /usr/bin/consul agent -config-dir /etc/consul -data-dir /var/lib/consul/data\n \
 \n \
-Note these consul directories must exist.\n");
+Note these consul directories must exist or the consul agent will not start.\n");
     exit(exit_code);
 }
 
