@@ -1,7 +1,14 @@
 # docker-consul-init
 A INIT / PID 1 program that starts your app and a consul agent written in C.
+
+## make
+```
+cd consul-init
+make
+cp consul-init /bin/consul-init
+```
   
-## Dockerfile Entry Point
+## Dockerfile entry point
 ```
 ENTRYPOINT ["/bin/consul-init", "--program", "/myapp", "--my-app-arggs"]
 ```
