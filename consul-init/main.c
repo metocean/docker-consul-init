@@ -1,4 +1,3 @@
-#include <assert.h>
 #include <errno.h>
 #include <getopt.h>
 #include <signal.h>
@@ -211,7 +210,7 @@ int main(int argc, char** argv) {
                     exit_status = WEXITSTATUS(status);
                 }
                 else {
-                    assert(WIFSIGNALED(status));
+                    //assert(WIFSIGNALED(status));
                     exit_status = 128 + WTERMSIG(status);
                 }
 
