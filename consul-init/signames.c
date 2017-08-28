@@ -134,8 +134,8 @@ static void signal_names_init() {
 int signal_name_to_num(const char* name) {
     if (str_starts_with(name, "SIG"))
         name = &name[3];
-
-    for (int i = 0; i < _signals_len; i++)
+    int i = 0;
+    for (; i < _signals_len; i++)
         if (strcasecmp(_signals[i].name, name) == 0)
             return _signals[i].num;
     return -1;
@@ -147,7 +147,8 @@ int sig_from_str(const char *str) {
 
     int num = atoi(str);
     if (num > 0) {
-        for (int i = 0; i < _signals_len; i++)
+        int i = 0;
+        for (; i < _signals_len; i++)
             if (_signals[i].num == num)
                 return num;
         return -1;
