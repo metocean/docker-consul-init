@@ -39,7 +39,8 @@ static struct {
 } _args;
 
 int map_signal(int signum) {
-    for (int i = 0; i < _args.signal_map_len; i++)
+    int i = 0;
+    for (; i < _args.signal_map_len; i++)
         if (_args.signal_map[i][0] == signum)
             return _args.signal_map[i][1];
     return signum;
@@ -61,7 +62,8 @@ void parse_args(int argc, char** argv) {
 
     memset(&_args, 0, sizeof(_args));
 
-    for (int i = 1; i < argc; i++) {
+    int i = 1;
+    for (; i < argc; i++) {
         if (state == INIT_ARGS) {
             if (strcasecmp(argv[i], "--no-consul") == 0) {
               _args.no_consul = true;
