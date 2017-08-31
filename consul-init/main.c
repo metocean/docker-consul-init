@@ -18,9 +18,10 @@
 
 void print_help_and_exit(int exit_code) {
     PRINT("\n\n \
-usage: consul-init --map [from-sig] [to-sig] --program [program path] [program args ..]\n\n \
---map [from-sig] [to-sig]: this re-maps a signal received by consul-init app to the program, you can have more than one mapping\n \
+usage: consul-init --map [from-sig] [to-sig] --init [program / args ..] --program [program / args ..]\n\n \
+--map [from-sig] [to-sig]: this re-maps a signal received by consul-init app to the program, you can have more than one mapping\n\n \
 --program [norm program args]: this is the program + it args to be run in the docker\n\n \
+--init [init program args]: the init program run first, before consul and --program. If it returns nonzero consul-init will exit. \n\n \
 --no-consul: do not use the consul agent\n\n \
 example: /bin/consul-init --map TERM QUIT --program /bin/nginx -g daemon off;\n \
 \n \
@@ -237,7 +238,7 @@ int main(int argc, char** argv) {
     if (_args.init_cmd[0] && execute_cmd(_args.init_cmd) != 0) {
         PRINT("ERROR: calling init cmd '%s' failed. Exiting.\n",
               _args.init_cmd[0]);
-        exit(1);
+        exit(2);
     }
 
     pid_t program_pid = -1;
