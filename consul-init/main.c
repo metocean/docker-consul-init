@@ -23,7 +23,8 @@ usage: consul-init --map [from-sig] [to-sig] --init [program / args ..] --progra
 --program [norm program args]: this is the program + it args to be run in the docker\n\n \
 --init [init program args]: the init program runs first, before consul and --program. If it returns nonzero consul-init will exit. \n\n \
 --no-consul: do not use the consul agent\n\n \
-example: /bin/consul-init --map TERM QUIT --program /bin/nginx -g daemon off;\n \
+example: consul-init --map TERM QUIT --program /bin/nginx -g daemon off;\n \
+example: consul-init --map TERM QUIT --init wget http://[somesite]/config.json --program /bin/nginx -g daemon off;\n \
 \n \
 consul agent is started with:\n\n \
 /usr/bin/consul agent -config-dir /etc/consul -data-dir /var/lib/consul/data\n \
