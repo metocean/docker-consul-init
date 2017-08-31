@@ -37,6 +37,10 @@ this will start nginx and the consul agent. When ```docker stop``` is used nginx
 /bin/consul-init --map TERM QUIT --program /bin/nginx -g daemon off;
 ```
 ```--map``` maps the terminate signal to quit allowing nginx to gracefully shut down.
+```
+/bin/consul-init --map TERM QUIT --init wget http://[somesite]/config.json --program /bin/nginx -g daemon off;
+```
+```--init``` will run wget before the nginx or consul-agent. If wget exits none zero consul-init will exit without running consul agent or the program nginx.
 
 ## on docker stop
 on docker stop / SIGTERM or on SIGINT consul-init will:
