@@ -22,7 +22,7 @@ usage: consul-init --map [from-sig] [to-sig] --program [program path] [program a
 --map [from-sig] [to-sig]: this re-maps a signal received by consul-init app to the program, you can have more than one mapping\n \
 --program [norm program args]: this is the program + it args to be run in the docker\n\n \
 --no-consul: do not use the consul agent\n\n \
-example: /bin/consul-init --map TERM OUIT --program /bin/nginx -g daemon off;\n \
+example: /bin/consul-init --map TERM QUIT --program /bin/nginx -g daemon off;\n \
 \n \
 consul agent is started with:\n\n \
 /usr/bin/consul agent -config-dir /etc/consul -data-dir /var/lib/consul/data\n \
@@ -31,8 +31,10 @@ Note these consul directories must exist or the consul agent will not start.\n")
     exit(exit_code);
 }
 
+#define MAX_ARGS 50
 static struct {
-    char **program_cmd;
+    char *init_cmd[MAX_ARGS + 1];
+    char *program_cmd[MAX_ARGS + 1];
     int signal_map[MAX_SIG_NAMES][2];
     int signal_map_len;
     bool no_consul;
@@ -48,32 +50,47 @@ int map_signal(int signum) {
 
 void parse_args(int argc, char** argv) {
 
-    int sig_num = -1;
-
     enum {
         INIT_ARGS,
         GET_MAP_ARG_1,
         GET_MAP_ARG_2,
-        GET_PROGRAM_ARG
+        GET_INIT_ARG,
+        GET_INIT_ARG_COUNT,
+        GET_PROGRAM_ARG,
+        GET_PROGRAM_ARG_COUNT
     } state = INIT_ARGS;
-
-    if (argc < 2)
-      print_help_and_exit(1);
 
     memset(&_args, 0, sizeof(_args));
 
+    int sig_num = -1;
+
+    char **init_cmd = NULL;
+    int init_cmd_n = 0;
+
+    char **program_cmd = NULL;
+    int program_cmd_n = 0;
+
     int i = 1;
+
     for (; i < argc; i++) {
-        if (state == INIT_ARGS) {
-            if (strcasecmp(argv[i], "--no-consul") == 0) {
-              _args.no_consul = true;
-            }
-            else if (strcasecmp(argv[i], "--program") == 0
-                    || strcasecmp(argv[i], "-p") == 0) {
-                state = GET_PROGRAM_ARG;
-            }
-            else if (strcasecmp(argv[i], "--map") == 0
-                    || strcasecmp(argv[i], "-m") == 0) {
+
+        if (strcasecmp(argv[i], "--help") == 0
+                || strcasecmp(argv[i], "-h") == 0) {
+            print_help_and_exit(0);
+        }
+        else if (strcasecmp(argv[i], "--init") == 0) {
+            state = GET_INIT_ARG;
+        }
+        else if (strcasecmp(argv[i], "--program") == 0) {
+            state = GET_PROGRAM_ARG;
+        }
+        else if (strcasecmp(argv[i], "--no-consul") == 0) {
+            state = INIT_ARGS;
+            _args.no_consul = true;
+        }
+        else if (state == INIT_ARGS) {
+
+            if (strcasecmp(argv[i], "--map") == 0) {
                 state = GET_MAP_ARG_1;
                 if (_args.signal_map_len == MAX_SIG_NAMES) {
                     PRINT("ERROR: to many signals mapped, max: %d\n",
@@ -89,27 +106,49 @@ void parse_args(int argc, char** argv) {
                 PRINT("ERROR: invalid arguments\n");
                 print_help_and_exit(1);
             }
-        }
-        else if (state == GET_MAP_ARG_1) {
+
+        } else if (state == GET_MAP_ARG_1) {
             if ((sig_num = sig_from_str(argv[i])) < 1) {
                 PRINT("ERROR: invalid from signal\n");
                 print_help_and_exit(1);
             }
             _args.signal_map[_args.signal_map_len][0] = sig_num;
             state = GET_MAP_ARG_2;
-        }
-        else if (state == GET_MAP_ARG_2) {
+
+        } else if (state == GET_MAP_ARG_2) {
             if ((sig_num = sig_from_str(argv[i])) < 1) {
                 PRINT("ERROR: invalid to signal\n");
                 print_help_and_exit(1);
             }
             _args.signal_map[_args.signal_map_len++][1] = sig_num;
             state = INIT_ARGS;
+
+        } else if (state == GET_INIT_ARG) {
+            init_cmd = &argv[i];
+            init_cmd_n++;
+            state = GET_INIT_ARG_COUNT;
+
+        } else if (state == GET_INIT_ARG_COUNT) {
+            init_cmd_n++;
+
+        } else if (state == GET_PROGRAM_ARG) {
+            program_cmd = &argv[i];
+            program_cmd_n++;
+            state = GET_PROGRAM_ARG_COUNT;
+
+        } else if (state == GET_PROGRAM_ARG_COUNT) {
+            program_cmd_n++;
         }
-        else if (state == GET_PROGRAM_ARG) {
-            _args.program_cmd = &argv[i];
-            break;
-        }
+    }
+
+    if(init_cmd_n) {
+        for (i = 0; i < init_cmd_n && i < MAX_ARGS; i++)
+            _args.init_cmd[i] = init_cmd[i];
+    }
+
+    if(program_cmd_n) {
+        for (i = 0; i < program_cmd_n && i < MAX_ARGS; i++)
+            _args.program_cmd[i] = program_cmd[i];
     }
 }
 
@@ -136,7 +175,7 @@ void check_for_consul_dirs(const char *consul_data_dir, const char *consul_confi
     }
 }
 
-pid_t spawn_process(const char *file,
+pid_t spawn_cmd(const char *file,
                     char *const argv[],
                     const sigset_t *all_signals) {
 
@@ -164,6 +203,24 @@ pid_t spawn_process(const char *file,
     return child_pid;
 }
 
+int execute_cmd(char **argv) {
+     pid_t  pid;
+     int    status;
+
+     if ((pid = fork()) < 0) {     /* fork a child process           */
+          printf("*** ERROR: forking child process failed\n");
+          exit(1);
+     }
+     else if (pid == 0) {
+          if (execvp(*argv, argv) < 0)
+               exit(1);
+     }
+     else {
+          while (wait(&status) != pid);
+     }
+     return status;
+}
+
 int main(int argc, char** argv) {
 
     char* consul_data_dir = "/var/lib/consul/data";
@@ -177,6 +234,12 @@ int main(int argc, char** argv) {
     parse_args(argc, argv);
     check_for_consul_dirs(consul_data_dir, consul_config_dir);
 
+    if (_args.init_cmd[0] && execute_cmd(_args.init_cmd) != 0) {
+        PRINT("ERROR: calling init cmd '%s' failed. Exiting.\n",
+              _args.init_cmd[0]);
+        exit(1);
+    }
+
     pid_t program_pid = -1;
     pid_t program_exit_status = 0;
     pid_t program_alive = false;
@@ -189,13 +252,13 @@ int main(int argc, char** argv) {
     sigfillset(&all_signals);
     sigprocmask(SIG_BLOCK, &all_signals, NULL);
 
-    program_pid = spawn_process(_args.program_cmd[0], _args.program_cmd, &all_signals);
+    program_pid = spawn_cmd(_args.program_cmd[0], _args.program_cmd, &all_signals);
     if (program_pid < 0)
         return program_pid;
     program_alive = true;
 
     if (!_args.no_consul) {
-      consul_pid = spawn_process(consul_cmd[0], consul_cmd, &all_signals);
+      consul_pid = spawn_cmd(consul_cmd[0], consul_cmd, &all_signals);
       if (consul_pid < 0)
           return consul_pid;
       consul_alive = true;
