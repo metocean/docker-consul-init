@@ -12,23 +12,25 @@ A INIT / PID 1 program that starts your app and a consul agent written in C.
 
 ## usage
 ```
- usage: consul-init --map [from-sig] [to-sig] --init [program / args ..] --program [program / args ..]
+  usage: consul-init --map [from-sig] [to-sig] --init [program / args ..] --program [program / args ..]
 
  --map [from-sig] [to-sig]: this re-maps a signal received by consul-init app to the program, you can have more than one mapping
 
  --program [norm program args]: this is the program + it args to be run in the docker
 
- --init [init program args]: the init program runs first, before consul and --program. If it returns nonzero the consul-init will exit. 
+ --init [init program args]: the init program runs first, before consul and --program. If it returns nonzero consul-init will exit. 
 
  --no-consul: do not use the consul agent
 
- example: /bin/consul-init --map TERM QUIT --program /bin/nginx -g daemon off;
+ example: consul-init --map TERM QUIT --program /bin/nginx -g daemon off;
+ example: consul-init --map TERM QUIT --init wget http://[somesite]/config.json --program /bin/nginx -g daemon off;
  
  consul agent is started with:
 
  /usr/bin/consul agent -config-dir /etc/consul -data-dir /var/lib/consul/data
  
  Note these consul directories must exist or the consul agent will not start.
+
 ```
 
 ## example
