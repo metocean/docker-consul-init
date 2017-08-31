@@ -18,7 +18,7 @@ A INIT / PID 1 program that starts your app and a consul agent written in C.
 
  --program [norm program args]: this is the program + it args to be run in the docker
 
- --init [init program args]: the init program run first, before consul and --program. If it returns nonzero the consul-init will exit. 
+ --init [init program args]: the init program runs first, before consul and --program. If it returns nonzero the consul-init will exit. 
 
  --no-consul: do not use the consul agent
 
