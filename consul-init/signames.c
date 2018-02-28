@@ -34,7 +34,6 @@ static void signal_names_init() {
     add_signal(SIGINT, "INT", "Interrupt (ANSI)");
     add_signal(SIGTERM, "TERM", "Termination (ANSI).");
     add_signal(SIGCHLD, "CHLD", "Child status has changed (POSIX).");
-    add_signal(SIGUNUSED, "UNUSED", "");
 
     #ifdef SIGHUP
         add_signal(SIGHUP, "HUP", "Quit (POSIX)");
