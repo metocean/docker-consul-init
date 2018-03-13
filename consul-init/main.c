@@ -154,28 +154,6 @@ void parse_args(int argc, char** argv) {
     }
 }
 
-void check_for_consul_dirs(const char *consul_data_dir, const char *consul_config_dir) {
-    if (_args.no_consul == false) {
-        if (0 != access(consul_data_dir, F_OK)) {
-            _args.no_consul = true;
-            if (ENOENT == errno)
-                PRINT("WARN: %s does not exists, consul agent will not be started\n", consul_data_dir);
-            else if (ENOTDIR == errno)
-                PRINT("WARN: %s is not a directory, consul agent will not be started\n", consul_data_dir);
-            else
-                PRINT("WARN: %s access error, consul agent will not be started\n", consul_data_dir);
-        }
-        else if (0 != access(consul_config_dir, F_OK)) {
-            _args.no_consul = true;
-            if (ENOENT == errno)
-                PRINT("WARN: %s does not exists, consul agent will not be started\n", consul_config_dir);
-            else if (ENOTDIR == errno)
-                PRINT("WARN: %s is not a directory, consul agent will not be started\n", consul_config_dir);
-            else
-                PRINT("WARN: %s access error, consul agent will not be started\n", consul_config_dir);
-        }
-    }
-}
 
 pid_t spawn_cmd(const char *file,
                     char *const argv[],
@@ -223,18 +201,37 @@ int execute_cmd(char **argv) {
      return status;
 }
 
+char * find_dir(char *dir1, char *dir2) {
+    if (access(dir1, F_OK) == 0) {
+        return dir1;
+    } else if (access(dir2, F_OK) == 0) {
+        return dir2;
+    }
+    return NULL;
+}
+
 int main(int argc, char** argv) {
 
-    char* consul_data_dir = "/var/lib/consul/data";
-    char* consul_config_dir = "/etc/consul";
-    char* consul_cmd[] = {"/usr/bin/consul",
-                          "agent",
-                          "-config-dir", consul_config_dir,
-                          "-data-dir", consul_data_dir,
-                          NULL};
-
     parse_args(argc, argv);
-    check_for_consul_dirs(consul_data_dir, consul_config_dir);
+
+    char* consul_cmd[] = {
+        "/usr/bin/consul",
+        "agent",
+        "-config-dir", find_dir("/consul/data", "/var/lib/consul/data"),
+        "-data-dir", find_dir("/consul/config", "/etc/consul"),
+        NULL
+    };
+
+    if (!_args.no_consul) {
+        if (!strlen(consul_cmd[3])) {
+            _args.no_consul = true;
+            PRINT("WARN: could not access config dir, consul agent will not be started\n");
+        }
+        if (!strlen(consul_cmd[5])) {
+            _args.no_consul = true;
+            PRINT("WARN: could not access data dir, consul agent will not be started\n");
+        }
+    }
 
     if (_args.init_cmd[0] && execute_cmd(_args.init_cmd) != 0) {
         PRINT("ERROR: calling init cmd '%s' failed. Exiting.\n",
