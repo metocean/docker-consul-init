@@ -66,7 +66,7 @@ make clean
 ## Dockerfile example
 ```
 # install consul agent
-ENV CONSUL_VERSION=0.7.5
+ENV CONSUL_VERSION=1.0.6
 RUN cd /tmp &&\
     curl -o consul.zip -L https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip &&\
     unzip consul.zip &&\
@@ -76,7 +76,7 @@ RUN cd /tmp &&\
     rm -rf /tmp/*
 
 # install consul-init
-ENV CONSUL_INIT_VERSION=0.0.4
+ENV CONSUL_INIT_VERSION=0.0.5
 RUN echo "----------------- install consul-init -----------------" &&\
     cd /tmp &&\
     curl -o consul-init.tar.gz -L https://github.com/metocean/docker-consul-init/archive/v${CONSUL_INIT_VERSION}.tar.gz &&\
@@ -84,7 +84,7 @@ RUN echo "----------------- install consul-init -----------------" &&\
     cd /tmp/docker-consul-init-${CONSUL_INIT_VERSION}/consul-init &&\
     make &&\
     cp consul-init /bin/ &&\
-    mkdir -p /var/lib/consul/data &&\
+    mkdir -p /consul/data &&\
     rm -rf /tmp/consul-init
 
 ENTRYPOINT ["consul-init", "--program", "gunicorn", "mywebapp", "--bind", "0.0.0.0:80"]
