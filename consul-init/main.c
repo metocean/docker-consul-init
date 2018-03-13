@@ -27,7 +27,7 @@ example: consul-init --map TERM QUIT --program /bin/nginx -g daemon off;\n \
 example: consul-init --map TERM QUIT --init wget http://[somesite]/config.json --program /bin/nginx -g daemon off;\n \
 \n \
 consul agent is started with:\n\n \
-/usr/bin/consul agent -config-dir /etc/consul -data-dir /var/lib/consul/data\n \
+/usr/bin/consul agent -config-dir /consul/config -data-dir /consul/data\n \
 \n \
 Note these consul directories must exist or the consul agent will not start.\n");
     exit(exit_code);
