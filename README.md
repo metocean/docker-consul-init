@@ -27,7 +27,7 @@ A INIT / PID 1 program that starts your app and a consul agent written in C.
  
  consul agent is started with:
 
- /usr/bin/consul agent -config-dir /etc/consul -data-dir /var/lib/consul/data
+ /usr/bin/consul agent -config-dir /consul/config -data-dir /consul/data
  
  Note these consul directories must exist or the consul agent will not start.
 
