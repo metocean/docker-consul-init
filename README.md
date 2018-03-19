@@ -76,7 +76,7 @@ RUN cd /tmp &&\
     rm -rf /tmp/*
 
 # install consul-init
-ENV CONSUL_INIT_VERSION=0.0.7
+ENV CONSUL_INIT_VERSION=0.0.8
 RUN echo "----------------- install consul-init -----------------" &&\
     cd /tmp &&\
     curl -o consul-init.tar.gz -L https://github.com/metocean/docker-consul-init/archive/v${CONSUL_INIT_VERSION}.tar.gz &&\
