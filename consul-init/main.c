@@ -217,17 +217,17 @@ int main(int argc, char** argv) {
     char* consul_cmd[] = {
         "/usr/bin/consul",
         "agent",
-        "-config-dir", find_dir("/consul/data", "/var/lib/consul/data"),
-        "-data-dir", find_dir("/consul/config", "/etc/consul"),
+        "-data-dir", find_dir("/consul/data", "/var/lib/consul/data"),
+        "-config-dir", find_dir("/consul/config", "/etc/consul"),
         NULL
     };
 
     if (!_args.no_consul) {
-        if (!strlen(consul_cmd[3])) {
+        if (consul_cmd[3] == NULL) {
             _args.no_consul = true;
             PRINT("WARN: could not access config dir, consul agent will not be started\n");
         }
-        if (!strlen(consul_cmd[5])) {
+        if (consul_cmd[5] == NULL) {
             _args.no_consul = true;
             PRINT("WARN: could not access data dir, consul agent will not be started\n");
         }
