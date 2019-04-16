@@ -263,6 +263,7 @@ int main(int argc, char** argv) {
     pid_t consul_pid = -1;
     pid_t consul_exit_status = 0;
     pid_t consul_alive = false;
+    pid_t consul_closing = false;
 
     sigset_t all_signals;
     sigfillset(&all_signals);
@@ -300,6 +301,12 @@ int main(int argc, char** argv) {
                     program_alive = false;
                     program_exit_status = exit_status;
                     PRINT("%s (%d) exited with status %d.\n", _args.program_cmd[0], program_pid, exit_status);
+
+                    if (consul_pid != -1 && consul_alive && !consul_closing) {
+                        PRINT("signalling consul pid:%d\n", consul_pid);
+                        kill_app(consul_pid, SIGINT);
+                        consul_closing = true;
+                    }
                 }
                 else if (killed_pid == consul_pid) {
                     consul_alive = false;
@@ -307,29 +314,39 @@ int main(int argc, char** argv) {
                     PRINT("consul (%d) exited with status %d.\n", consul_pid, exit_status);
                 }
                 else {
-                    PRINT("%s (%d) exited with status %d.\n", _args.program_cmd[0], killed_pid, exit_status);
+                    PRINT("pid:%d exited with status %d.\n", killed_pid, exit_status);
                 }
             }
         }
         else if (signum == SIGTERM || signum == SIGINT) {
             PRINT("starting graceful shutdown\n");
-            if (consul_pid > 0 && consul_alive)
-                kill_app(consul_pid, SIGINT);
-            if (program_pid > 0 && program_alive) {
+
+            if (consul_pid != -1 && consul_alive) {
+                  PRINT("signalling consul pid:%d\n", consul_pid);
+                  kill_app(consul_pid, SIGINT);
+                  consul_closing = true;
+            }
+
+            if (program_pid != -1 && program_alive) {
                 PRINT("signalling %s pid:%d\n", _args.program_cmd[0], program_pid);
                 kill_app(program_pid, map_signal(signum));
             }
         }
         else if (signum == SIGKILL) {
             PRINT("starting hard shutdown\n");
-            if (program_pid > 0 && program_alive) {
+
+            if (program_pid != -1 && program_alive) {
                 PRINT("signalling %s (%d)\n", _args.program_cmd[0], program_pid);
                 kill_app(program_pid, SIGKILL);
             }
-            if (consul_pid > 0 && consul_alive)
+
+            if (consul_pid != -1 && consul_alive) {
+                PRINT("signalling consul pid:%d\n", consul_pid);
                 kill_app(consul_pid, SIGKILL);
+                consul_closing = true;
+              }
         }
-        else if (program_pid > 0 && program_alive) {
+        else if (program_pid != -1 && program_alive) {
             PRINT("signalling %s pid:%d\n", _args.program_cmd[0], program_pid);
             kill_app(program_pid, map_signal(signum));
         }
