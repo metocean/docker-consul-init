@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include "signames.h"
 
 
@@ -154,4 +155,10 @@ int sig_from_str(const char *str) {
     }
     // it might be a name / code.
     return signal_name_to_num(str);
+}
+
+void print_sigs() {
+    int i;
+    for (i = 0; i < _signals_len; i++)
+        printf("%s %d, ", _signals[i].name, _signals[i].num);
 }

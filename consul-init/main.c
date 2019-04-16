@@ -13,19 +13,19 @@
 #include "signames.h"
 
 #define PRINT(...) do { \
-    fprintf(stderr, "[consul-init] " __VA_ARGS__); \
+    fprintf(stdout, "[consul-init] " __VA_ARGS__); \
 } while (0)
 
 void print_args(int argc, char** argv) {
-    int i = 0;
-    printf("\nentrypoint args: ");
-    for (;i<argc;i++)
+    int i;
+    PRINT("entrypoint args: ");
+    for (i = 0; i<argc; i++)
         printf("\"%s\" ", argv[i]);
-    printf("\n\n");
+    printf("\n");
 }
 
-void print_help_and_exit(int exit_code, int argc, char** argv) {
-    PRINT("\n\n \
+void print_help_and_exit(int exit_code) {
+    printf("\n\n\
 usage: consul-init --map [from-sig] [to-sig] --init [program / args ..] --program [program / args ..]\n\n \
 --map [from-sig] [to-sig]: this re-maps a signal received by consul-init app to the program, you can have more than one mapping\n\n \
 --program [norm program args]: this is the program + it args to be run in the docker\n\n \
@@ -38,10 +38,6 @@ consul agent is started with:\n\n \
 /usr/bin/consul agent -config-dir /consul/config -data-dir /consul/data\n \
 \n \
 Note these consul directories must exist or the consul agent will not start.\n\n");
-
-    if (exit_code)
-        print_args(argc, argv);
-
     exit(exit_code);
 }
 
@@ -92,7 +88,7 @@ void parse_args(int argc, char** argv) {
 
         if (strcasecmp(argv[i], "--help") == 0
                 || strcasecmp(argv[i], "-h") == 0) {
-            print_help_and_exit(0, argc, argv);
+            print_help_and_exit(0);
         }
         else if (strcasecmp(argv[i], "--init") == 0) {
             state = GET_INIT_ARG;
@@ -111,30 +107,32 @@ void parse_args(int argc, char** argv) {
                 if (_args.signal_map_len == MAX_SIG_NAMES) {
                     PRINT("ERROR: to many signals mapped, max: %d\n",
                             MAX_SIG_NAMES);
-                    print_help_and_exit(1, argc, argv);
+                    print_help_and_exit(1);
                 }
             }
             else if (strcasecmp(argv[i], "--help") == 0
                     || strcasecmp(argv[i], "-h") == 0) {
-                print_help_and_exit(0, argc, argv);
+                print_help_and_exit(0);
             }
             else {
                 PRINT("ERROR: invalid arguments\n");
-                print_help_and_exit(1, argc, argv);
+                print_help_and_exit(1);
             }
 
         } else if (state == GET_MAP_ARG_1) {
             if ((sig_num = sig_from_str(argv[i])) < 1) {
-                PRINT("ERROR: invalid from signal\n");
-                print_help_and_exit(1, argc, argv);
+                PRINT("ERROR: invalid [from-sig], valid signals are:\n");
+                print_sigs();
+                print_help_and_exit(1);
             }
             _args.signal_map[_args.signal_map_len][0] = sig_num;
             state = GET_MAP_ARG_2;
 
         } else if (state == GET_MAP_ARG_2) {
             if ((sig_num = sig_from_str(argv[i])) < 1) {
-                PRINT("ERROR: invalid to signal\n");
-                print_help_and_exit(1, argc, argv);
+                PRINT("ERROR: invalid [to-sig], valid signals are:\n");
+                print_sigs();
+                print_help_and_exit(1);
             }
             _args.signal_map[_args.signal_map_len++][1] = sig_num;
             state = INIT_ARGS;
