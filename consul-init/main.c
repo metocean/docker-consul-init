@@ -320,7 +320,7 @@ int main(int argc, char** argv) {
 
                     if (consul_pid != -1 && consul_alive && !consul_closing) {
                         PRINT("WARNING shutdown consul after --program as exited early, "\
-                              "this could be unsafe, try fixing by using --shutdown [sig] arg");
+                              "this could be unsafe, try fixing by using --shutdown [sig] arg\n");
                         PRINT("signalling consul pid:%d\n", consul_pid);
                         kill_app(consul_pid, SIGINT);
                         consul_closing = true;
