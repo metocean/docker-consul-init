@@ -16,7 +16,15 @@
     fprintf(stderr, "[consul-init] " __VA_ARGS__); \
 } while (0)
 
-void print_help_and_exit(int exit_code) {
+void print_args(int argc, char** argv) {
+    int i = 0;
+    printf("args: ");
+    for (;i<argc;i++)
+        printf("\"%s\" ", argv[i]);
+    printf("\n");
+}
+
+void print_help_and_exit(int exit_code, int argc, char** argv) {
     PRINT("\n\n \
 usage: consul-init --map [from-sig] [to-sig] --init [program / args ..] --program [program / args ..]\n\n \
 --map [from-sig] [to-sig]: this re-maps a signal received by consul-init app to the program, you can have more than one mapping\n\n \
@@ -29,7 +37,11 @@ example: consul-init --map TERM QUIT --init wget http://[somesite]/config.json -
 consul agent is started with:\n\n \
 /usr/bin/consul agent -config-dir /consul/config -data-dir /consul/data\n \
 \n \
-Note these consul directories must exist or the consul agent will not start.\n");
+Note these consul directories must exist or the consul agent will not start.\n\n");
+
+    if (exit_code)
+        print_args(argc, argv);
+
     exit(exit_code);
 }
 
@@ -78,7 +90,7 @@ void parse_args(int argc, char** argv) {
 
         if (strcasecmp(argv[i], "--help") == 0
                 || strcasecmp(argv[i], "-h") == 0) {
-            print_help_and_exit(0);
+            print_help_and_exit(0, argc, argv);
         }
         else if (strcasecmp(argv[i], "--init") == 0) {
             state = GET_INIT_ARG;
@@ -97,22 +109,22 @@ void parse_args(int argc, char** argv) {
                 if (_args.signal_map_len == MAX_SIG_NAMES) {
                     PRINT("ERROR: to many signals mapped, max: %d\n",
                             MAX_SIG_NAMES);
-                    print_help_and_exit(1);
+                    print_help_and_exit(1, argc, argv);
                 }
             }
             else if (strcasecmp(argv[i], "--help") == 0
                     || strcasecmp(argv[i], "-h") == 0) {
-                print_help_and_exit(0);
+                print_help_and_exit(0, argc, argv);
             }
             else {
                 PRINT("ERROR: invalid arguments\n");
-                print_help_and_exit(1);
+                print_help_and_exit(1, argc, argv);
             }
 
         } else if (state == GET_MAP_ARG_1) {
             if ((sig_num = sig_from_str(argv[i])) < 1) {
                 PRINT("ERROR: invalid from signal\n");
-                print_help_and_exit(1);
+                print_help_and_exit(1, argc, argv);
             }
             _args.signal_map[_args.signal_map_len][0] = sig_num;
             state = GET_MAP_ARG_2;
@@ -120,7 +132,7 @@ void parse_args(int argc, char** argv) {
         } else if (state == GET_MAP_ARG_2) {
             if ((sig_num = sig_from_str(argv[i])) < 1) {
                 PRINT("ERROR: invalid to signal\n");
-                print_help_and_exit(1);
+                print_help_and_exit(1, argc, argv);
             }
             _args.signal_map[_args.signal_map_len++][1] = sig_num;
             state = INIT_ARGS;
@@ -184,21 +196,21 @@ pid_t spawn_cmd(const char *file,
 }
 
 int execute_cmd(char **argv) {
-     pid_t  pid;
-     int    status;
+    pid_t  pid;
+    int    status;
 
-     if ((pid = fork()) < 0) {     /* fork a child process           */
-          printf("*** ERROR: forking child process failed\n");
-          exit(1);
-     }
-     else if (pid == 0) {
-          if (execvp(*argv, argv) < 0)
-               exit(1);
-     }
-     else {
-          while (wait(&status) != pid);
-     }
-     return status;
+    if ((pid = fork()) < 0) {     /* fork a child process           */
+        printf("*** ERROR: forking child process failed\n");
+        exit(1);
+    }
+    else if (pid == 0) {
+        if (execvp(*argv, argv) < 0)
+             exit(1);
+    }
+    else {
+        while (wait(&status) != pid);
+    }
+    return status;
 }
 
 char * find_dir(char *dir1, char *dir2) {
