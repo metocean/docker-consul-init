@@ -28,6 +28,7 @@ void print_help_and_exit(int exit_code) {
     PRINT("\n\n\
 usage: consul-init --map [from-sig] [to-sig] --init [program / args ..] --program [program / args ..]\n\n \
 --map [from-sig] [to-sig]: this re-maps a signal received by consul-init app to the program, you can have more than one mapping\n\n \
+--shutdown [sig]: consul-init will try a greaceful shutdown when receiving this signal or INT or TERM\n\n \
 --program [norm program args]: this is the program + it args to be run in the docker\n\n \
 --init [init program args]: the init program runs first, before consul and --program. If it returns nonzero consul-init will exit. \n\n \
 --no-consul: do not use the consul agent\n\n \
@@ -48,6 +49,7 @@ static struct {
     int signal_map[MAX_SIG_NAMES][2];
     int signal_map_len;
     bool no_consul;
+    int shutdown_sig;
 } _args;
 
 int map_signal(int signum) {
@@ -64,6 +66,7 @@ void parse_args(int argc, char** argv) {
         INIT_ARGS,
         GET_MAP_ARG_1,
         GET_MAP_ARG_2,
+        GET_SHUTDOWN_SIG,
         GET_INIT_ARG,
         GET_INIT_ARG_COUNT,
         GET_PROGRAM_ARG,
@@ -83,6 +86,7 @@ void parse_args(int argc, char** argv) {
     int program_cmd_n = 0;
 
     int i = 1;
+    _args.shutdown_sig = -1;
 
     for (; i < argc; i++) {
 
@@ -110,6 +114,9 @@ void parse_args(int argc, char** argv) {
                     print_help_and_exit(1);
                 }
             }
+            else if (strcasecmp(argv[i], "--shutdown") == 0) {
+                state = GET_SHUTDOWN_SIG;
+            }
             else if (strcasecmp(argv[i], "--help") == 0
                     || strcasecmp(argv[i], "-h") == 0) {
                 print_help_and_exit(0);
@@ -118,6 +125,15 @@ void parse_args(int argc, char** argv) {
                 PRINT("ERROR: invalid arguments\n");
                 print_help_and_exit(1);
             }
+
+          } else if (state == GET_SHUTDOWN_SIG) {
+              if ((sig_num = sig_from_str(argv[i])) < 1) {
+                  PRINT("ERROR: invalid --shutdown signal, valid signals are:\n");
+                  print_sigs();
+                  print_help_and_exit(1);
+              }
+              _args.shutdown_sig = sig_num;
+              state = INIT_ARGS;
 
         } else if (state == GET_MAP_ARG_1) {
             if ((sig_num = sig_from_str(argv[i])) < 1) {
@@ -318,7 +334,9 @@ int main(int argc, char** argv) {
                 }
             }
         }
-        else if (signum == SIGTERM || signum == SIGINT) {
+        else if (signum == SIGTERM || signum == SIGINT
+          || (_args.shutdown_sig != -1 && signum == _args.shutdown_sig)) {
+
             PRINT("starting graceful shutdown\n");
 
             if (consul_pid != -1 && consul_alive) {
