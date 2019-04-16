@@ -224,6 +224,7 @@ char * find_dir(char *dir1, char *dir2) {
 
 void kill_app(int pid, int sig) {
     PRINT("sending sig: %s(%d) to pid:%d\n", strsignal(sig), sig, pid);
+    kill(pid, sig);
 }
 
 int main(int argc, char** argv) {
@@ -315,7 +316,7 @@ int main(int argc, char** argv) {
             if (consul_pid > 0 && consul_alive)
                 kill_app(consul_pid, SIGINT);
             if (program_pid > 0 && program_alive) {
-                PRINT("signalling %s (%d)\n", _args.program_cmd[0], program_pid);
+                PRINT("signalling %s pid:%d\n", _args.program_cmd[0], program_pid);
                 kill_app(program_pid, map_signal(signum));
             }
         }
@@ -329,7 +330,7 @@ int main(int argc, char** argv) {
                 kill_app(consul_pid, SIGKILL);
         }
         else if (program_pid > 0 && program_alive) {
-            PRINT("signalling %s (%d)\n", _args.program_cmd[0], program_pid);
+            PRINT("signalling %s pid:%d\n", _args.program_cmd[0], program_pid);
             kill_app(program_pid, map_signal(signum));
         }
     }
