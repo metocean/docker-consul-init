@@ -222,6 +222,10 @@ char * find_dir(char *dir1, char *dir2) {
     return NULL;
 }
 
+void kill_app(int pid, int sig) {
+    PRINT("sending sig: %s(%d) to pid:%d\n", strsignal(sig), sig, pid);
+}
+
 int main(int argc, char** argv) {
 
     parse_args(argc, argv);
@@ -309,23 +313,24 @@ int main(int argc, char** argv) {
         else if (signum == SIGTERM || signum == SIGINT) {
             PRINT("starting graceful shutdown\n");
             if (consul_pid > 0 && consul_alive)
-               kill(consul_pid, SIGINT);
-            if (program_pid > 0 && program_alive)
-                kill(program_pid, map_signal(SIGTERM));
+                kill_app(consul_pid, SIGINT);            
+            if (program_pid > 0 && program_alive) {
+                PRINT("signalling %s (%d)\n", _args.program_cmd[0], program_pid);
+                kill_app(program_pid, map_signal(signum));
+            }
         }
         else if (signum == SIGKILL) {
             PRINT("starting hard shutdown\n");
-            if (program_pid > 0 && program_alive)
-                kill(program_pid, SIGKILL);
+            if (program_pid > 0 && program_alive) {
+                PRINT("signalling %s (%d)\n", _args.program_cmd[0], program_pid);
+                kill_app(program_pid, SIGKILL);
+            }
             if (consul_pid > 0 && consul_alive)
-                kill(consul_pid, SIGKILL);
+                kill_app(consul_pid, SIGKILL);
         }
         else if (program_pid > 0 && program_alive) {
-            PRINT("signalling %s (%d): %s\n",
-                    _args.program_cmd[0],
-                    program_pid,
-                    strsignal(map_signal(signum)));
-            kill(program_pid, map_signal(signum));
+            PRINT("signalling %s (%d)\n", _args.program_cmd[0], program_pid);
+            kill_app(program_pid, map_signal(signum));
         }
     }
 
