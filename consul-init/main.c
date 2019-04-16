@@ -13,19 +13,19 @@
 #include "signames.h"
 
 #define PRINT(...) do { \
-    fprintf(stdout, "[consul-init] " __VA_ARGS__); \
+    fprintf(stderr, __VA_ARGS__); \
 } while (0)
 
 void print_args(int argc, char** argv) {
     int i;
     PRINT("entrypoint args: ");
     for (i = 0; i<argc; i++)
-        printf("\"%s\" ", argv[i]);
-    printf("\n");
+        PRINT("\"%s\" ", argv[i]);
+    PRINT("\n");
 }
 
 void print_help_and_exit(int exit_code) {
-    printf("\n\n\
+    PRINT("\n\n\
 usage: consul-init --map [from-sig] [to-sig] --init [program / args ..] --program [program / args ..]\n\n \
 --map [from-sig] [to-sig]: this re-maps a signal received by consul-init app to the program, you can have more than one mapping\n\n \
 --program [norm program args]: this is the program + it args to be run in the docker\n\n \
@@ -313,7 +313,7 @@ int main(int argc, char** argv) {
         else if (signum == SIGTERM || signum == SIGINT) {
             PRINT("starting graceful shutdown\n");
             if (consul_pid > 0 && consul_alive)
-                kill_app(consul_pid, SIGINT);            
+                kill_app(consul_pid, SIGINT);
             if (program_pid > 0 && program_alive) {
                 PRINT("signalling %s (%d)\n", _args.program_cmd[0], program_pid);
                 kill_app(program_pid, map_signal(signum));

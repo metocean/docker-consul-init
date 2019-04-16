@@ -160,5 +160,5 @@ int sig_from_str(const char *str) {
 void print_sigs() {
     int i;
     for (i = 0; i < _signals_len; i++)
-        printf("%s %d, ", _signals[i].name, _signals[i].num);
+        fprintf(stderr, "%s %d, ", _signals[i].name, _signals[i].num);
 }
