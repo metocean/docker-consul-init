@@ -319,6 +319,8 @@ int main(int argc, char** argv) {
                     PRINT("%s (%d) exited with status %d.\n", _args.program_cmd[0], program_pid, exit_status);
 
                     if (consul_pid != -1 && consul_alive && !consul_closing) {
+                        PRINT("WARNING shutdown consul after --program as exited early, "\
+                              "this could be unsafe, try fixing by using --shutdown [sig] arg");
                         PRINT("signalling consul pid:%d\n", consul_pid);
                         kill_app(consul_pid, SIGINT);
                         consul_closing = true;
