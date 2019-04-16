@@ -18,10 +18,10 @@
 
 void print_args(int argc, char** argv) {
     int i = 0;
-    printf("args: ");
+    printf("\nentrypoint args: ");
     for (;i<argc;i++)
         printf("\"%s\" ", argv[i]);
-    printf("\n");
+    printf("\n\n");
 }
 
 void print_help_and_exit(int exit_code, int argc, char** argv) {
@@ -73,6 +73,8 @@ void parse_args(int argc, char** argv) {
         GET_PROGRAM_ARG,
         GET_PROGRAM_ARG_COUNT
     } state = INIT_ARGS;
+
+    print_args(argc, argv);
 
     memset(&_args, 0, sizeof(_args));
 
